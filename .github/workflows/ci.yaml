@@ -1,9 +1,9 @@
 name: Package Helm Chart
 
 on:
-  push:
-    branches:
-      - main  # trigger on push to main
+  release:
+    types:
+      - published
     paths:
       - 'helm/**'  # only trigger if chart changes
 
