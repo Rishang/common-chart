@@ -40,3 +40,20 @@ serviceaccount: {}
 
 configmap: {}
 secrets: {}
+
+externalSecrets: []
+  # - name: my-external-secret
+  #   annotations: {}
+  #   refreshInterval: "0s"  # Set to "0s" to disable auto-refresh, or "1h", "5m", etc.
+  #   secretStoreRef:
+  #     name: my-secret-store
+  #     kind: SecretStore
+  #   target:
+  #     name: my-external-secret
+  #     creationPolicy: Owner
+  #   data:
+  #     - secretKey: MY_SECRET_KEY
+  #       remoteRef:
+  #         key: /path/to/parameter
+
+extraObjects: []
