@@ -74,13 +74,13 @@ const config = {
       navbar: {
         title: 'common-chart',
         items: [
-          {
-            type: 'docSidebar',
-            sidebarId: 'componentChartSidebar',
-            docsPluginId: 'component-chart',
-            position: 'left',
-            label: 'component-chart',
-          },
+          // {
+          //   type: 'docSidebar',
+          //   sidebarId: 'componentChartSidebar',
+          //   docsPluginId: 'component-chart',
+          //   position: 'left',
+          //   label: 'component-chart',
+          // },
         ],
       },
       footer: {
