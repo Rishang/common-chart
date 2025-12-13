@@ -10,12 +10,12 @@ const config = {
   tagline: 'Helm chart documentation',
   favicon: 'img/favicon.ico',
 
-  url: 'https://example.invalid',
-  baseUrl: '/',
+  url: 'https://rishang.github.io',
+  baseUrl: '/common-chart/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
-  organizationName: 'noobi',
+  organizationName: 'rishang',
   projectName: 'common-chart',
 
   i18n: {
