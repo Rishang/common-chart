@@ -1,0 +1,9 @@
+{
+  "extends": "@tsconfig/docusaurus/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["@docusaurus/theme-classic", "node", "react", "react-dom"]
+  }
+}
+
+

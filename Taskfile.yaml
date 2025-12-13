@@ -1,0 +1,13 @@
+version: 3
+
+tasks:
+  docs:
+    dir: web
+    cmds:
+    - pnpm start
+  
+  docs:build:
+    dir: web
+    cmds:
+    - pnpm install
+    - pnpm build

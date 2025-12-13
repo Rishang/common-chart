@@ -1,0 +1,137 @@
+---
+title: Examples
+sidebar_label: Examples
+---
+
+This page contains a few copy/paste-ready examples for common `component-chart` scenarios.
+
+## Example: Basic web API (Deployment + Service)
+
+```yaml
+containers:
+  - image: ghcr.io/acme/api:1.2.3
+    ports:
+      - port: 8080
+service:
+  ports:
+    - port: 80
+      containerPort: 8080
+```
+
+## Example: Ingress with TLS (cert-manager)
+
+```yaml
+service:
+  ports:
+    - port: 80
+      containerPort: 8080
+
+ingress:
+  disabled: false
+  certmanager: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  rules:
+    - host: api.example.com
+      path: /
+      servicePort: 80
+  tls: true
+  tlsClusterIssuer: lets-encrypt-http-issuer
+```
+
+## Example: Persistent volume (StatefulSet) + mount
+
+When at least one volume is mounted into a container, the chart switches to a StatefulSet and uses a headless `serviceName`.
+
+```yaml
+serviceName: my-app
+
+containers:
+  - image: postgres:16
+    volumeMounts:
+      - containerPath: /var/lib/postgresql/data
+        volume:
+          name: data
+
+volumes:
+  - name: data
+    size: 10Gi
+```
+
+## Example: ExternalSecret (External Secrets Operator) + mount via volume secret
+
+This creates the `ExternalSecret` resource which in turn creates a Kubernetes `Secret` (`target.name`).
+You can then reference/mount that Secret using `volumes`.
+
+```yaml
+externalSecrets:
+  - name: app-secrets
+    refreshInterval: "1h"
+    secretStoreRef:
+      name: my-secret-store
+      kind: SecretStore
+    target:
+      name: app-secrets
+      creationPolicy: Owner
+    data:
+      - secretKey: DATABASE_URL
+        remoteRef:
+          key: /prod/app/database_url
+
+containers:
+  - image: ghcr.io/acme/api:1.2.3
+    volumeMounts:
+      - containerPath: /etc/secrets
+        volume:
+          name: app-secrets
+          readOnly: true
+
+volumes:
+  - name: app-secrets
+    secret:
+      secretName: app-secrets
+```
+
+## Example: Create a ServiceAccount
+
+```yaml
+serviceaccount:
+  name: my-app
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/my-app
+```
+
+## Example: Create a ConfigMap + consume via env
+
+```yaml
+configmap:
+  name: my-app
+  data:
+    LOG_LEVEL: info
+
+containers:
+  - image: ghcr.io/acme/api:1.2.3
+    env:
+      - name: LOG_LEVEL
+        valueFrom:
+          configMapKeyRef:
+            name: my-app
+            key: LOG_LEVEL
+```
+
+## Example: Render extraObjects verbatim
+
+```yaml
+extraObjects:
+  - apiVersion: policy/v1
+    kind: PodDisruptionBudget
+    metadata:
+      name: my-app
+    spec:
+      minAvailable: 1
+      selector:
+        matchLabels:
+          app.kubernetes.io/name: my-app
+```
+
+

@@ -324,7 +324,7 @@ spec:
         {{- end }}
       initContainers:
         {{- range $containerIndex, $container := $.Values.initContainers }}
-        - image: {{ $container.image | quote }}
+        - image: "{{ $container.image }}:{{ $container.imageTag | default "latest" }}"
           {{- if $container.name }}
           name: {{ $container.name | quote }}
           {{- else }}

@@ -1,0 +1,29 @@
+---
+title: ConfigMap
+sidebar_label: configmap
+---
+
+## `configmap`
+
+Create a Kubernetes `ConfigMap` for this release.
+
+Rendered by: `templates/config-map.yaml`
+
+```yaml
+containers:
+- image: example/image
+  imageTag: latest
+  envFrom:
+    - configMapRef:
+        name: my-config
+
+configmap:                      # struct | Optional ConfigMap to create
+  name: my-config               # string | Optional (default: release name)
+  annotations: {}               # map    | Optional annotations (merged with global `.Values.annotations`)
+  data:                         # map    | Optional data entries
+    LOG_LEVEL: debug            # string | Strings are quoted
+    NESTED_JSON:                # any    | Non-strings are YAML-encoded then quoted
+      enabled: true
+```
+
+
