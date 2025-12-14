@@ -7,7 +7,7 @@ type ChartCard = {
   href?: string;
   badge: string;
   description: string;
-  links: Array<{label: string; href: string}>;
+  links: Array<{ label: string; href: string }>;
 };
 
 const charts: ChartCard[] = [
@@ -18,10 +18,10 @@ const charts: ChartCard[] = [
     description:
       'General-purpose chart for deploying application components with a unified values.yaml.',
     links: [
-      {label: 'Introduction', href: '/component-chart/introduction'},
-      {label: 'Usage', href: '/component-chart/usage'},
-      {label: 'Examples', href: '/component-chart/examples'},
-      {label: 'values.yaml reference', href: '/component-chart/reference'},
+      { label: 'Introduction', href: '/component-chart/introduction' },
+      { label: 'Usage', href: '/component-chart/usage' },
+      { label: 'Examples', href: '/component-chart/examples' },
+      { label: 'values.yaml reference', href: '/component-chart/reference' },
     ],
   },
   {
@@ -33,7 +33,7 @@ const charts: ChartCard[] = [
   },
 ];
 
-function ChartCardView({card}: {card: ChartCard}) {
+function ChartCardView({ card }: { card: ChartCard }) {
   const Title = card.href ? (
     <Link to={card.href}>{card.title}</Link>
   ) : (
@@ -43,10 +43,10 @@ function ChartCardView({card}: {card: ChartCard}) {
   return (
     <div className={styles.card}>
       <div className={styles.cardTitle}>
-        <h3 style={{margin: 0}}>{Title}</h3>
+        <h3 style={{ margin: 0 }}>{Title}</h3>
         <span className={styles.pill}>{card.badge}</span>
       </div>
-      <p className={styles.muted} style={{marginTop: 0}}>
+      <p className={styles.muted} style={{ marginTop: 0 }}>
         {card.description}
       </p>
 

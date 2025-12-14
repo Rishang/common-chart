@@ -7,12 +7,12 @@
   --ifm-color-primary-light: #0f9e92;
   --ifm-color-primary-lighter: #10a89c;
   --ifm-color-primary-lightest: #12bdb0;
-  
+
   /* Darker teal text colors */
   --ifm-heading-color: #0f766e;
   --ifm-link-color: #0d9488;
   --ifm-link-hover-color: #0a7068;
-  
+
   /* Code blocks with darker teal accent */
   --ifm-code-background: #ecfdf5;
   --ifm-code-color: #0f766e;
@@ -26,12 +26,12 @@
   --ifm-color-primary-light: #38dfcb;
   --ifm-color-primary-lighter: #44e5d1;
   --ifm-color-primary-lightest: #5bf0dd;
-  
+
   /* Dark mode darker teal text */
   --ifm-heading-color: #2dd4bf;
   --ifm-link-color: #2dd4bf;
   --ifm-link-hover-color: #5eead4;
-  
+
   --ifm-code-background: #0f3d39;
   --ifm-code-color: #5eead4;
 }
@@ -102,5 +102,3 @@
   background: var(--ifm-code-background);
   overflow-x: auto;
 }
-
-
