@@ -8,11 +8,6 @@ version: 0.2.0
 appVersion: "1.0.0"
 
 dependencies:
-  - name: grafana
-    version: 10.3.1
-    repository: https://grafana.github.io/helm-charts
-    condition: grafana.enabled
-
   - name: loki
     version: 6.49.0
     repository: https://grafana.github.io/helm-charts
@@ -22,13 +17,16 @@ dependencies:
     version: 1.24.1
     repository: https://grafana.github.io/helm-charts
     condition: tempo.enabled
-
-  - name: thanos
-    version: 0.10.0
-    repository: oci://ghcr.io/solidcharts/helm-charts/thanos
-    condition: thanos.enabled
-
+  
+  - name: kube-prometheus-stack
+    version: 80.4.1
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: kube-prometheus-stack.enabled
   - name: rustfs
     version: 0.0.73
-    repository: https://charts.rustfs.io
+    repository: https://charts.rustfs.com
     condition: rustfs.enabled
+  - name: thanos
+    version: 0.10.0
+    repository: https://solidcharts.github.io/helm-charts
+    condition: thanos.enabled
