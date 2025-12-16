@@ -107,8 +107,10 @@ jobs:
       - name: Commit chart index to main
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Fetch the latest main branch
+          git fetch origin main:main
+          git checkout main
           
           # Create charts directory in web/static if it doesn't exist
           mkdir -p web/static/charts
@@ -119,6 +121,11 @@ jobs:
           # Copy packaged charts to web/static/charts
           cp .cr-release-packages/*.tgz web/static/charts/ || true
           
+          # Commit and push if there are changes
           git add web/static/charts/
-          git diff --staged --quiet || git commit -m "Update Helm chart index for release ${{ github.ref_name }}"
-          git push origin main
+          if ! git diff --staged --quiet; then
+            git commit -m "Update Helm chart index for release ${{ github.ref_name }}"
+            git push origin main
+          else
+            echo "No changes to commit"
+          fi
