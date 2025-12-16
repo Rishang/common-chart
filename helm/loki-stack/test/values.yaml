@@ -4,3 +4,8 @@ loki:
       enabled: true
       size: 10Gi
       storageClass: local-path
+
+kube-prometheus-stack:
+  grafana:
+    adminUser: admin
+    adminPassword: admin
