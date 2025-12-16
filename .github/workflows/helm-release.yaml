@@ -44,6 +44,12 @@ jobs:
             echo "Updated $CHART_PATH to ${VERSION}"
           done
 
+      - name: Add chart repositories
+        run: |
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+
       - name: Update chart dependencies
         run: |
           set -euo pipefail
@@ -68,5 +74,5 @@ jobs:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           charts_dir: helm
-          charts_repo_url: https://rishang.github.io/common-chart
+          pages_branch: gh-pages
           skip_existing: true
