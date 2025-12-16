@@ -9,75 +9,64 @@ permissions:
   contents: write
 
 jobs:
-  package-charts:
+  release-charts:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        chart:
-          - component-chart
-          - loki-stack
 
     steps:
-      # 1. Checkout the repo
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # 2. Set up Helm
       - name: Set up Helm
         uses: azure/setup-helm@v4
         with:
           version: v3.12.0
 
-      # 3. Extract version from release tag
       - name: Extract version
         id: version
         run: |
-          # Remove 'v' prefix if present (e.g., v1.2.3 -> 1.2.3)
           VERSION=${GITHUB_REF_NAME#v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extracted version: $VERSION"
 
-      # 4. Update chart version
-      - name: Update chart version
+      - name: Update chart versions
         run: |
-          CHART_PATH="helm/${{ matrix.chart }}/Chart.yaml"
+          set -euo pipefail
           VERSION="${{ steps.version.outputs.version }}"
-          
-          # Update version in Chart.yaml
-          sed -i "s/^version:.*/version: $VERSION/" "$CHART_PATH"
-          
-          echo "Updated $CHART_PATH with version $VERSION"
-          cat "$CHART_PATH"
+          for CHART in component-chart loki-stack; do
+            CHART_PATH="helm/${CHART}/Chart.yaml"
+            if [ ! -f "$CHART_PATH" ]; then
+              echo "::error::Missing $CHART_PATH"
+              exit 1
+            fi
+            sed -i "s/^version:.*/version: ${VERSION}/" "$CHART_PATH"
+            echo "Updated $CHART_PATH to ${VERSION}"
+          done
 
-      # 5. Update chart dependencies (if any)
       - name: Update chart dependencies
         run: |
-          CHART_PATH="helm/${{ matrix.chart }}"
-          if [ -f "$CHART_PATH/Chart.yaml" ] && grep -q "dependencies:" "$CHART_PATH/Chart.yaml"; then
-            echo "Updating dependencies for ${{ matrix.chart }}"
-            helm dependency update "$CHART_PATH"
-          else
-            echo "No dependencies to update for ${{ matrix.chart }}"
-          fi
+          set -euo pipefail
+          for CHART in component-chart loki-stack; do
+            CHART_DIR="helm/${CHART}"
+            if [ -f "$CHART_DIR/Chart.yaml" ] && grep -q "dependencies:" "$CHART_DIR/Chart.yaml"; then
+              echo "Updating dependencies for ${CHART}"
+              helm dependency update "$CHART_DIR"
+            else
+              echo "No dependencies to update for ${CHART}"
+            fi
+          done
 
-      # 6. Package the Helm chart
-      - name: Package Helm chart
+      - name: Configure git user
         run: |
-          helm package helm/${{ matrix.chart }} --destination ./helm-packages
-          echo "Packaged chart:"
-          ls -lh ./helm-packages/
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # 7. Upload as artifact
-      - name: Upload Helm tarball
-        uses: actions/upload-artifact@v4
-        with:
-          name: helm-${{ matrix.chart }}
-          path: ./helm-packages/*.tgz
-
-      # 8. Attach to GitHub Release
-      - name: Attach to GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ./helm-packages/*.tgz
+      - name: Release charts
+        uses: helm/chart-releaser-action@v1.7.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          charts_dir: helm
+          charts_repo_url: https://rishang.github.io/common-chart
+          skip_existing: true
