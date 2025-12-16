@@ -5,6 +5,11 @@ loki:
     auth_enabled: false
     commonConfig:
       replication_factor: 1
+    # Default Loki container security context override:
+    # With persistence disabled and no /var/loki emptyDir mount, Loki must be allowed to write to /var/loki.
+    # If you prefer readOnlyRootFilesystem=true, enable persistence or add the emptyDir mount under `singleBinary` above.
+    containerSecurityContext:
+      readOnlyRootFilesystem: true
     storage:
       type: "filesystem"
     schemaConfig:
@@ -29,19 +34,21 @@ loki:
       # size: 10Gi
       # storageClass: null
     # Loki stores local data (chunks, ruler rules/WAL, etc.) under /var/loki by default.
-    # With readOnlyRootFilesystem=true in the chart defaults, we must mount /var/loki as writable.
     #
-    # IMPORTANT:
-    # - When you enable `singleBinary.persistence.enabled=true`, the Loki chart already mounts the PVC at /var/loki.
-    # - In that case, you MUST override these to empty lists (e.g. in `test/values.yaml`) to avoid duplicate mounts:
-    #     singleBinary.extraVolumes: []
-    #     singleBinary.extraVolumeMounts: []
-    extraVolumes:
-      - name: storage
-        emptyDir: {}
-    extraVolumeMounts:
-      - name: storage
-        mountPath: /var/loki
+    # Defaults in this chart keep these empty to avoid the common "duplicate /var/loki mount" issue when
+    # persistence is enabled (the Loki subchart mounts the PVC to /var/loki automatically).
+    extraVolumes: []
+    extraVolumeMounts: []
+    #
+    # If you run WITHOUT persistence *and* you want `readOnlyRootFilesystem: true`, you must mount a writable
+    # volume at /var/loki (example below).
+    #
+    # extraVolumes:
+    #   - name: storage
+    #     emptyDir: {}
+    # extraVolumeMounts:
+    #   - name: storage
+    #     mountPath: /var/loki
 
   backend:
     replicas: 0
