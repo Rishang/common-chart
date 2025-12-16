@@ -2,7 +2,7 @@ apiVersion: v1
 entries:
   component-chart:
   - apiVersion: v2
-    created: "2025-12-16T12:15:22.193266903+05:30"
+    created: "2025-12-16T12:25:01.186563955+05:30"
     description: A general purpose helm chart for deploying components of an application
     digest: 385ec101df6f0745b94fe25d8ddf6bf733ba9a2630e340e778f1b9d18fef2cd1
     name: component-chart
@@ -12,7 +12,7 @@ entries:
   loki-stack:
   - apiVersion: v2
     appVersion: "1.0"
-    created: "2025-12-16T12:15:22.234646728+05:30"
+    created: "2025-12-16T12:25:01.223170298+05:30"
     dependencies:
     - condition: loki.enabled
       name: loki
@@ -41,4 +41,4 @@ entries:
     urls:
     - https://rishang.github.io/common-chart/charts/loki-stack-1.0.0.tgz
     version: 1.0.0
-generated: "2025-12-16T12:15:22.192899231+05:30"
+generated: "2025-12-16T12:25:01.18621019+05:30"
