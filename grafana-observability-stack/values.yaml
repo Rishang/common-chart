@@ -1,10 +1,3 @@
-# =====================
-# Global
-# =====================
-global:
-  domain: example.com
-  storageClass: standard
-
 kube-prometheus-stack:
   enabled: true
   grafana:
@@ -15,16 +8,16 @@ kube-prometheus-stack:
         - grafana.172.18.0.2.nip.io
     sidecar:
       datasources:
-        enabled: false
-        defaultDatasourceEnabled: false
-        isDefaultDatasource: false 
+        enabled: true
+        defaultDatasourceEnabled: true
+        isDefaultDatasource: true 
         name: Thanos
-        url: "http://prometheus:10902"
+        url: "http://uos-thanos-query:10902"
   prometheus:
     thanosService:
       enabled: true
     prometheusSpec:
-      retention: 2d
+      retention: 1d
       shards: 1
       externalLabels:
         prometheus: thanos
@@ -64,28 +57,7 @@ tempo:
 # =====================
 rustfs:
   enabled: true
-  # Default values for rustfs.
-  # This is a YAML-formatted file.
-  # Declare variables to be passed into your templates.
-
-  # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
   replicaCount: 4
-
-  # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
-  image:
-    repository: rustfs/rustfs
-    # This sets the pull policy for images.
-    pullPolicy: IfNotPresent
-    # Overrides the image tag whose default is the chart appVersion.
-    tag: 1.0.0-alpha.73
-
-  # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-  imagePullSecrets: []
-  # This is to override the chart name.
-  nameOverride: ""
-  fullnameOverride: ""
-
-
   mode:
     standalone:
       enabled: false
@@ -108,44 +80,6 @@ rustfs:
       console_enable: "true"
       obs_log_directory: "/logs"
 
-  # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
-  serviceAccount:
-    # Specifies whether a service account should be created
-    create: true
-    # Automatically mount a ServiceAccount's API credentials?
-    automount: true
-    # Annotations to add to the service account
-    annotations: {}
-    # The name of the service account to use.
-    # If not set and create is true, a name is generated using the fullname template
-    name: ""
-
-  # This is for setting Kubernetes Annotations to a Pod.
-  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
-  podAnnotations: {}
-  # This is for setting Kubernetes Labels to a Pod.
-  # For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
-  podLabels: {}
-
-  podSecurityContext:
-    fsGroup: 10001
-    runAsUser: 10001 
-    runAsGroup: 10001
-
-  containerSecurityContext:
-    capabilities:
-      drop:
-        - ALL
-    readOnlyRootFilesystem: true
-    runAsNonRoot: true
-
-  service:
-    port: 9000
-    type: NodePort
-    ep_port: 9000
-    console_port: 9001
-
-  # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
   ingress:
     enabled: true
     className: "traefik" # Specify the classname, traefik or nginx. Different classname has different annotations for session sticky.
@@ -177,10 +111,6 @@ rustfs:
     key: tls.key
 
   resources:
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     limits:
       cpu: 200m
       memory: 512Mi
@@ -188,23 +118,6 @@ rustfs:
       cpu: 100m
       memory: 128Mi
 
-  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  livenessProbe:
-    httpGet:
-      path: /health
-      port: http
-  readinessProbe:
-    httpGet:
-      path: /health
-      port: http
-
-  # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
-  autoscaling:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 100
-    targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
 
   nodeSelector: {}
 
@@ -222,16 +135,11 @@ rustfs:
 # Thanos Query
 
 thanos:
- enabled: true
- querier:
   enabled: true
-  stores:
-    # Use dnssrv+ prefix for automatic discovery of the headless service
-    - dnssrv+_grpc._tcp.uos-kube-prometheus-stack-thanos-discovery.default.svc.cluster.local
- storegateway:
-  enabled: true
+  additionalEndpoints: 
+    - "dns+uos-kube-prometheus-stack-thanos-discovery.default.svc.cluster.local:10901"
   objstoreConfig:
-    secret:
+    value: |-
       type: s3
       config:
         bucket: thanos
@@ -239,6 +147,3 @@ thanos:
         access_key: rustfsadmin
         secret_key: rustfsadmin
         insecure: true
-  persistence:
-    enabled: true
-    size: 10Gi # Required for local index-header caching
