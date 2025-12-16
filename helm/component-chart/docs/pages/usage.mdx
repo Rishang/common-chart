@@ -5,7 +5,20 @@ sidebar_label: Usage
 
 ## Install Chart
 
-To install this chart, you can reference it from your local repository or by publishing it to a Helm repository.
+### From Helm Repository
+
+Add the Helm repository:
+```bash
+helm repo add common-chart https://rishang.github.io/common-chart/charts
+helm repo update
+```
+
+Install or upgrade the chart:
+```bash
+helm upgrade --install my-component common-chart/component-chart --values values.yaml
+```
+
+### From Local Path
 
 For local installation:
 ```bash
@@ -15,6 +28,11 @@ helm install -n my-namespace my-component ./helm/component-chart/
 ## Upgrade Chart
 ```bash
 helm upgrade -n my-namespace my-component ./helm/component-chart/
+```
+
+Or from repository:
+```bash
+helm upgrade my-component common-chart/component-chart --values values.yaml
 ```
 
 ## Delete Chart
