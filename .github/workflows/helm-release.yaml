@@ -28,6 +28,12 @@ jobs:
           type -p gh >/dev/null || (echo "GitHub CLI is not installed" && exit 1)
           gh --version
 
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Extract version
         id: version
         run: |
@@ -49,53 +55,18 @@ jobs:
             echo "Updated $CHART_PATH to ${VERSION}"
           done
 
-      - name: Add chart repositories
-        run: |
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo update
-
-      - name: Update chart dependencies
-        run: |
-          set -euo pipefail
-          for CHART in component-chart loki-stack; do
-            CHART_DIR="helm/${CHART}"
-            if [ -f "$CHART_DIR/Chart.yaml" ] && grep -q "dependencies:" "$CHART_DIR/Chart.yaml"; then
-              echo "Updating dependencies for ${CHART}"
-              helm dependency update "$CHART_DIR"
-            else
-              echo "No dependencies to update for ${CHART}"
-            fi
-          done
-
       - name: Configure git user
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Package charts
-        run: |
-          set -euo pipefail
-          mkdir -p .cr-release-packages
-          VERSION="${{ steps.version.outputs.version }}"
-          for CHART in component-chart loki-stack; do
-            CHART_DIR="helm/${CHART}"
-            echo "Packaging ${CHART} version ${VERSION}"
-            helm package "$CHART_DIR" --destination .cr-release-packages
-          done
-
-      - name: Create chart index
-        run: |
-          set -euo pipefail
-          mkdir -p .cr-index
-          helm repo index .cr-release-packages --url https://rishang.github.io/common-chart/charts --merge .cr-index/index.yaml || \
-          helm repo index .cr-release-packages --url https://rishang.github.io/common-chart/charts
-          mv .cr-release-packages/index.yaml .cr-index/
+      - name: Package charts using Task
+        run: task helm-package-publish
 
       - name: Upload chart packages as release assets
         run: |
           set -euo pipefail
-          for package in .cr-release-packages/*.tgz; do
+          for package in web/static/charts/*.tgz; do
             if [ -f "$package" ]; then
               echo "Uploading $(basename $package) to release ${{ github.ref_name }}"
               gh release upload "${{ github.ref_name }}" "$package" --clobber
@@ -112,19 +83,13 @@ jobs:
           git fetch origin main:main
           git checkout main
           
-          # Create charts directory in web/static if it doesn't exist
-          mkdir -p web/static/charts
-          
-          # Copy index.yaml to web/static/charts
-          cp .cr-index/index.yaml web/static/charts/index.yaml
-          
-          # Copy packaged charts to web/static/charts
-          cp .cr-release-packages/*.tgz web/static/charts/ || true
+          # Re-run task to ensure we have the latest
+          task helm-package-publish
           
           # Commit and push if there are changes
           git add web/static/charts/
           if ! git diff --staged --quiet; then
-            git commit -m "Update Helm chart index for release ${{ github.ref_name }}"
+            git commit -m "Release Helm charts ${{ github.ref_name }}"
             git push origin main
           else
             echo "No changes to commit"
