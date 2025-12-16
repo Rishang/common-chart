@@ -1,8 +1,6 @@
 loki:
   enabled: true
   deploymentMode: SingleBinary
-  image:
-    tag: "3.5.5"
   loki:
     auth_enabled: false
     commonConfig:
