@@ -26,7 +26,13 @@ loki:
       max_query_series: 1000
       max_query_lookback: 168h
       volume_enabled: true
-
+  
+  chunksCache:
+    enabled: false
+  
+  lokiCanary:
+    enabled: true
+  
   singleBinary:
     replicas: 1
     persistence:
