@@ -31,7 +31,7 @@ loki:
     enabled: false
   
   lokiCanary:
-    enabled: true
+    enabled: false
   
   singleBinary:
     replicas: 1
