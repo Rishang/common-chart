@@ -5,6 +5,15 @@ loki:
       size: 10Gi
       storageClass: local-path
 
+# alloy:
+#   alloyConfigMapExtra: |
+#     // 5. Send
+#     loki.write "endpoint" {
+#       endpoint {
+#         url = "http://grafana-stack-loki:3100/loki/api/v1/push"
+#       }
+#     }
+
 kube-prometheus-stack:
   grafana:
     adminUser: admin

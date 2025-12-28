@@ -139,24 +139,29 @@ alloy:
 
           // Ensure labels are applied
           stage.labels {
-              values = {
-                namespace = "namespace",
-                pod       = "pod",
-                container = "container",
-                job       = "job",
-                node_name = "node_name",
-              }
+            values = {
+              namespace = "namespace",
+              pod       = "pod",
+              container = "container",
+              job       = "job",
+              node_name = "node_name",
+            }
           }
 
           forward_to = [loki.write.endpoint.receiver]
         }
 
-        // 5. Send
-        loki.write "endpoint" {
-          endpoint {
-            url = "http://{{ .Release.Name }}-loki:3100/loki/api/v1/push"
-          }
-        }
+        {{ tpl .Values.alloyConfigMapExtra . | nindent 2 }}
+
+  # Extra configuration to be merged into the Alloy configMap Generally for configuring the write endpoints
+  # This allows you to customize the loki.write endpoint or add additional configuration
+  alloyConfigMapExtra: |
+    // write to the Loki endpoint
+    loki.write "endpoint" {
+      endpoint {
+        url = "http://{{ .Release.Name }}-loki:3100/loki/api/v1/push"
+      }
+    }
 
 kube-prometheus-stack:
   enabled: true
