@@ -3,6 +3,7 @@ module.exports = {
   lokiStackSidebar: [
     'introduction',
     'usage',
+    'reference',
     'examples',
   ],
 };

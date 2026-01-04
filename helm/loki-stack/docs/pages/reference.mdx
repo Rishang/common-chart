@@ -1,0 +1,27 @@
+---
+title: Values Reference
+sidebar_label: values.yaml
+---
+
+import valuesYaml from '!!raw-loader!../../values.yaml';
+import chartYaml from '!!raw-loader!../../Chart.yaml';
+import CodeBlock from '@theme/CodeBlock';
+
+## Dependencies
+
+This chart depends on the following upstream charts:
+- [Loki](https://artifacthub.io/packages/helm/grafana/loki)
+- [Alloy](https://artifacthub.io/packages/helm/grafana/alloy)
+- [kube-prometheus-stack](https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack)
+
+<CodeBlock language="yaml" title="dependencies (Chart.yaml)">
+  {chartYaml}
+</CodeBlock>
+
+## Complete default values.yaml Reference
+
+Below is the complete `values.yaml` file with all available configuration options and their default values:
+
+<CodeBlock language="yaml" title="values.yaml">
+  {valuesYaml}
+</CodeBlock>
