@@ -3,6 +3,10 @@ title: Persistent Volumes
 sidebar_label: Persistent Volumes
 ---
 
+import ArtifactHubBadge from '@site/src/components/ArtifactHubBadge';
+
+<ArtifactHubBadge name="component-chart" />
+
 Generally, containers are stateless. That means that whenever you write anything to the filesystem of the container, it will be removed when the container restarts.
 
 Altough it is recommend to keep your applications as stateless as possible, sometimes you will need to store data in a directory that should "survive" a container restart, e.g. the data directory within a database container (e.g. `/var/lib/mysql` for mysql).

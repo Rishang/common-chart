@@ -3,6 +3,10 @@ title: Pod Auto-Scaling
 sidebar_label: autoScaling
 ---
 
+import ArtifactHubBadge from '@site/src/components/ArtifactHubBadge';
+
+<ArtifactHubBadge name="component-chart" />
+
 To enable horizontal auto-scaling for a component, you just need to set `autoScaling.horizontal.maxReplicas` greater than the [value for `replicas`](../configuration/replicas.mdx). Additionally, you should configure one or multiple of the target value parameters, `averageCPU` and `averageMemory`. These target values define how the autoscaler will set the number of replicas to achieve an average CPU utilization and/or an average memory usage by the pods that will be scaled within this component.
 
 ```yaml

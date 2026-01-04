@@ -3,6 +3,10 @@ title: Containers
 sidebar_label: containers
 ---
 
+import ArtifactHubBadge from '@site/src/components/ArtifactHubBadge';
+
+<ArtifactHubBadge name="component-chart" />
+
 Components are deployed as Kubernetes Deployment or StatefulSet (if one of the containers mounts a value). These Kubernetes resources create a certain number of pods which are a set of containers. These containers are created based on images. 
 
 ## `name`
