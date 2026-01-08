@@ -20,16 +20,16 @@ tasks:
     - helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
     - helm repo update
     - echo "Updating chart dependencies..."
-    - helm dependency update helm/loki-stack
+    - helm dependency update charts/loki-stack
     - echo "Creating charts directory..."
     - mkdir -p web/static/charts
     - echo "Cleaning old chart packages..."
     - rm -f web/static/charts/component-chart-*.tgz
     - rm -f web/static/charts/loki-stack-*.tgz
     - echo "Packaging component-chart..."
-    - helm package helm/component-chart -d web/static/charts/
+    - helm package charts/component-chart -d web/static/charts/
     - echo "Packaging loki-stack..."
-    - helm package helm/loki-stack -d web/static/charts/
+    - helm package charts/loki-stack -d web/static/charts/
     - echo "Updating Helm repository index..."
     - helm repo index web/static/charts --url https://rishang.github.io/common-chart/charts
     - echo "✅ Charts packaged successfully!"
