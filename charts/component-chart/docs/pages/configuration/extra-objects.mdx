@@ -1,0 +1,99 @@
+---
+title: Extra Objects
+sidebar_label: extraObjects
+---
+
+import ArtifactHubBadge from '@site/src/components/ArtifactHubBadge';
+
+<ArtifactHubBadge name="component-chart" />
+
+## `extraObjects`
+
+Render additional Kubernetes objects **verbatim**.
+
+Rendered by: `templates/extras.yaml`
+
+This is useful for adding **CRDs / custom resources** (or any other extra objects) that are not covered by the chart values.
+
+### Example 1: Traefik IngressRoute
+
+```yaml
+extraObjects:
+  - apiVersion: traefik.io/v1alpha1
+    kind: IngressRoute
+    metadata:
+      name: my-app
+    spec:
+      entryPoints:
+        - websecure
+      routes:
+        - match: Host(`my-app.example.com`)
+          kind: Rule
+          services:
+            - name: my-app
+              port: 80
+      tls:
+        secretName: my-app-tls
+```
+
+### Example 2: KEDA ScaledObject for Event-Driven Autoscaling
+
+[KEDA](https://keda.sh/) allows you to scale workloads based on external metrics.
+
+#### KEDA with RabbitMQ Queue
+
+```yaml
+containers:
+  - image: myapp/worker
+    imageTag: "1.0.0"
+
+extraObjects:
+  - apiVersion: keda.sh/v1alpha1
+    kind: ScaledObject
+    metadata:
+      name: rabbitmq-scaledobject
+    spec:
+      scaleTargetRef:
+        name: my-release-name  # Should match your Helm release name
+      minReplicaCount: 1
+      maxReplicaCount: 10
+      triggers:
+        - type: rabbitmq
+          metadata:
+            queueName: my-queue
+            mode: QueueLength
+            value: "5"
+            host: amqp://guest:password@rabbitmq.default.svc.cluster.local:5672/
+```
+
+#### KEDA with Cron Schedule
+
+```yaml
+containers:
+  - image: myapp/batch-processor
+    imageTag: "1.0.0"
+
+extraObjects:
+  - apiVersion: keda.sh/v1alpha1
+    kind: ScaledObject
+    metadata:
+      name: cron-scaledobject
+    spec:
+      scaleTargetRef:
+        name: my-release-name
+      minReplicaCount: 0
+      maxReplicaCount: 5
+      triggers:
+        - type: cron
+          metadata:
+            timezone: America/New_York
+            start: 0 8 * * *      # Scale up at 8 AM
+            end: 0 18 * * *        # Scale down at 6 PM
+            desiredReplicas: "5"
+```
+
+:::info
+To use KEDA, install it first: `helm install keda kedacore/keda --namespace keda --create-namespace`
+:::
+
+

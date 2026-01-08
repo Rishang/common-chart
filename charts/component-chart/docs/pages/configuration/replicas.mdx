@@ -1,0 +1,22 @@
+---
+title: Pod Replicas
+sidebar_label: replicas
+---
+
+import ArtifactHubBadge from '@site/src/components/ArtifactHubBadge';
+
+<ArtifactHubBadge name="component-chart" />
+
+The `replicas` option expects an integer and defines how many pods Kubernetes will create for this component.
+
+#### Default Value For `replicas`
+```yaml
+replicas: 1
+```
+
+#### Example: Set Replica Number
+```yaml
+containers:
+- image: john/appbackend
+replicas: 3
+```

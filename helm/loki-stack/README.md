@@ -1,1 +1,0 @@
-helm template grafana-stack . --namespace monitoring --values test/values.yaml > build/loki-stack-manifest.yaml

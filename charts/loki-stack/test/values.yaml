@@ -1,0 +1,24 @@
+loki:
+  singleBinary:
+    persistence:
+      enabled: true
+      size: 10Gi
+      storageClass: local-path
+
+# alloy:
+#   alloyConfigMapExtra: |
+#     // 5. Send
+#     loki.write "endpoint" {
+#       endpoint {
+#         url = "http://grafana-stack-loki:3100/loki/api/v1/push"
+#       }
+#     }
+
+kube-prometheus-stack:
+  grafana:
+    adminUser: admin
+    adminPassword: admin
+    persistence:
+      enabled: true              # no PVC, data resets on pod restart
+      storageClass: local-path
+      size: 1Gi

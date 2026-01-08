@@ -1,0 +1,59 @@
+---
+title: Volumes
+sidebar_label: volumes
+---
+
+import ArtifactHubBadge from '@site/src/components/ArtifactHubBadge';
+
+<ArtifactHubBadge name="component-chart" />
+
+:::info
+View the [Persistent Volume Guide](../guides/persistent-volumes.mdx) for a step by step explanation.
+:::
+
+## `name`
+The `name` option is mandatory and expects a string with the name of this volume.
+
+
+## `size`
+The `size` option is used for persistent volumes and expects a string with the size of the persistent volume that should be provisioned.
+
+
+## `emptyDir`
+The `emptyDir` option is used for defining a Kubernetes `emptyDir` volume. `{}` will enable an `emptyDir` with default values. `emptyDir.medium` can optionally be `Memory`. `emptyDir.sizeLimit` can be use to specify the size limit.
+
+
+## `configMap`
+The `configMap` option is used for defining a Kubernetes ConfigMap as volume. It requires defining `configMap.name`.
+
+
+## `secret`
+The `secret` option is used for defining a Kubernetes Secret as volume. It requires defining `secret.secretName`.
+
+
+## `storageClassName`
+The `storageClassName` option expects a string with the name of a Kubernetes storage class.
+
+
+## `volumeMode`
+The `volumeMode` option expects a string with the Kubernetes volume mode.
+
+
+## `volumeName`
+The `volumeName` option expects a string with the name of a Kubernetes volume to bind this volume claim to.
+
+
+## `dataSource`
+The `dataSource` option expects an object with information about a Kubernetes data source (e.g. for using VolumeSnapshots).
+
+
+## `accessModes`
+The `accessModes` option expects an array of strings with volume access modes (default is: `[ReadWriteOnce]`).
+
+
+## `labels`
+The `labels` option expects a map with Kubernetes labels.
+
+
+## `annotations`
+The `annotations` option expects a map with Kubernetes annotations.

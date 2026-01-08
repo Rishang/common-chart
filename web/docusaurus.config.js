@@ -6,17 +6,17 @@ const darkCodeTheme = prismThemes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'common-chart',
+  title: 'helm-chart',
   tagline: 'Helm chart documentation',
   favicon: 'img/favicon.ico',
 
   url: 'https://rishang.github.io',
-  baseUrl: '/common-chart/',
+  baseUrl: '/helm-chart/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
 
   organizationName: 'rishang',
-  projectName: 'common-chart',
+  projectName: 'helm-chart',
 
   i18n: {
     defaultLocale: 'en',
@@ -43,7 +43,7 @@ const config = {
       {
         id: 'component-chart',
         // Use the chart docs directly, so chart + docs stay together
-        path: '../helm/component-chart/docs/pages',
+        path: '../charts/component-chart/docs/pages',
         routeBasePath: 'component-chart',
         sidebarPath: require.resolve('./sidebars/component-chart.js'),
         showLastUpdateAuthor: false,
@@ -51,16 +51,18 @@ const config = {
       },
     ],
 
-    // Future: add other chart doc sets as separate docs instances, e.g.:
-    // [
-    //   '@docusaurus/plugin-content-docs',
-    //   {
-    //     id: 'loki-stack',
-    //     path: '../helm/loki-stack/docs/pages',
-    //     routeBasePath: 'loki-stack',
-    //     sidebarPath: require.resolve('./sidebars/loki-stack.js'),
-    //   },
-    // ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'loki-stack',
+        // Use the chart docs directly, so chart + docs stay together
+        path: '../charts/loki-stack/docs/pages',
+        routeBasePath: 'loki-stack',
+        sidebarPath: require.resolve('./sidebars/loki-stack.js'),
+        showLastUpdateAuthor: false,
+        showLastUpdateTime: false,
+      },
+    ],
   ],
 
   themeConfig:
@@ -72,23 +74,30 @@ const config = {
         respectPrefersColorScheme: false,
       },
       navbar: {
-        title: 'common-chart',
+        title: 'helm-chart',
         items: [
+          {
+            type: 'docSidebar',
+            sidebarId: 'componentChartSidebar',
+            docsPluginId: 'component-chart',
+            position: 'left',
+            label: 'component-chart',
+          },
+          {
+            type: 'docSidebar',
+            sidebarId: 'lokiStackSidebar',
+            docsPluginId: 'loki-stack',
+            position: 'left',
+            label: 'loki-stack',
+          },
           // {
-          //   type: 'docSidebar',
-          //   sidebarId: 'componentChartSidebar',
-          //   docsPluginId: 'component-chart',
-          //   position: 'left',
-          //   label: 'component-chart',
-          // },
-          // {
-          //   href: 'https://github.com/Rishang/common-chart/stargazers',
+          //   href: 'https://github.com/Rishang/helm-chart/stargazers',
           //   position: 'right',
           //   className: 'header-github-star',
           //   'aria-label': 'Star on GitHub',
           // },
           {
-            href: 'https://github.com/Rishang/common-chart',
+            href: 'https://github.com/Rishang/helm-chart',
             position: 'right',
             className: 'header-github-link',
             'aria-label': 'GitHub repository',
@@ -104,7 +113,7 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/Rishang/common-chart',
+                href: 'https://github.com/Rishang/helm-chart',
               },
             ],
           },

@@ -1,0 +1,182 @@
+loki:
+  enabled: true
+  deploymentMode: SingleBinary
+  loki:
+    auth_enabled: false
+    commonConfig:
+      replication_factor: 1
+    # Default Loki container security context override:
+    # With persistence disabled and no /var/loki emptyDir mount, Loki must be allowed to write to /var/loki.
+    # If you prefer readOnlyRootFilesystem=true, enable persistence or add the emptyDir mount under `singleBinary` above.
+    containerSecurityContext:
+      readOnlyRootFilesystem: true
+    storage:
+      type: "filesystem"
+    schemaConfig:
+      configs:
+        - from: 2024-04-01
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+    limits_config:
+      retention_period: 168h # 7 days
+      max_query_series: 1000
+      max_query_lookback: 168h # 7 days
+      volume_enabled: true
+  
+  chunksCache:
+    enabled: false
+  
+  lokiCanary:
+    enabled: false
+  
+  singleBinary:
+    replicas: 1
+    persistence:
+      enabled: false
+      # size: 10Gi
+      # storageClass: null
+    # Loki stores local data (chunks, ruler rules/WAL, etc.) under /var/loki by default.
+    #
+    # Defaults in this chart keep these empty to avoid the common "duplicate /var/loki mount" issue when
+    # persistence is enabled (the Loki subchart mounts the PVC to /var/loki automatically).
+    extraVolumes: []
+    extraVolumeMounts: []
+    #
+    # If you run WITHOUT persistence *and* you want `readOnlyRootFilesystem: true`, you must mount a writable
+    # volume at /var/loki (otherwise Loki will fail to write WAL and chunks).
+    #
+    # extraVolumes:
+    #   - name: storage
+    #     emptyDir: {}
+    # extraVolumeMounts:
+    #   - name: storage
+    #     mountPath: /var/loki
+  memcached:
+    # -- Enable the built in memcached server provided by the chart
+    enabled: true
+  backend:
+    replicas: 0
+  read:
+    replicas: 0
+  write:
+    replicas: 0
+  gateway:
+    enabled: false
+  # -- Used to directly query the metrics endpoint of the canary for testing, this approach avoids needing prometheus for testing.
+  # This in a newer approach to using prometheusAddress such that tests do not have a dependency on prometheus
+  test:
+    enabled: false
+
+alloy:
+  enabled: true
+
+  # IMPORTANT: the Alloy chart expects config under the nested `alloy:` key.
+  alloy:
+    mounts:
+      # Mount host /var/log so we can read /var/log/containers and /var/log/pods for ALL pods/namespaces.
+      varlog: true
+    configMap:
+      content: |
+        // 1. Target /var/log/pods (The Source of Truth)
+        local.file_match "kubernetes" {
+          path_targets = [
+            {"__path__" = "/var/log/pods/*/*/*.log"},
+          ]
+        }
+
+        // 2. Parse metadata (Updated Regex for /pods/ structure)
+        discovery.relabel "kubernetes" {
+          targets = local.file_match.kubernetes.targets
+
+          // Path structure: /var/log/pods/<namespace>_<pod_name>_<uid>/<container_name>/<restart_count>.log
+
+          // Extract Namespace ($1) - Matches text before the first underscore
+          rule {
+            source_labels = ["__path__"]
+            regex         = ".*/var/log/pods/([^_]+)_.*"
+            target_label  = "namespace"
+          }
+
+          // Extract Pod Name ($1) - Matches text between first and second underscore
+          rule {
+            source_labels = ["__path__"]
+            regex         = ".*/var/log/pods/[^_]+_([^_]+)_.*"
+            target_label  = "pod"
+          }
+
+          // Extract Container Name ($1) - Matches the folder name after the UID
+          rule {
+            source_labels = ["__path__"]
+            regex         = ".*/var/log/pods/[^_]+_[^_]+_[^/]+/([^/]+)/.*"
+            target_label  = "container"
+          }
+
+          rule {
+            target_label = "job"
+            replacement  = "kubernetes-logs"
+          }
+
+          // Node Name (Must come from Env Var, not metadata)
+          rule {
+            target_label = "node_name"
+            replacement  = sys.env("HOSTNAME") // Ensure this Env Var is set on your pod
+          }
+        }
+
+        // 3. Ingest
+        loki.source.file "kubernetes" {
+          targets    = discovery.relabel.kubernetes.output
+          forward_to = [loki.process.kubernetes.receiver]
+        }
+
+        // 4. Process
+        loki.process "kubernetes" {
+          stage.cri {}
+
+          // Ensure labels are applied
+          stage.labels {
+            values = {
+              namespace = "namespace",
+              pod       = "pod",
+              container = "container",
+              job       = "job",
+              node_name = "node_name",
+            }
+          }
+
+          forward_to = [loki.write.endpoint.receiver]
+        }
+
+        {{ tpl .Values.alloyConfigMapExtra . | nindent 2 }}
+
+  # Extra configuration to be merged into the Alloy configMap Generally for configuring the write endpoints
+  # This allows you to customize the loki.write endpoint or add additional configuration
+  alloyConfigMapExtra: |
+    // write to the Loki endpoint
+    loki.write "endpoint" {
+      endpoint {
+        url = "http://{{ .Release.Name }}-loki:3100/loki/api/v1/push"
+      }
+    }
+
+kube-prometheus-stack:
+  enabled: true
+
+  grafana:
+    enabled: true
+    # Disable init-chown-data to avoid permission issues with local-path storage
+    initChownData:
+      enabled: false
+    additionalDataSources:
+      - name: Loki
+        type: loki
+        uid: loki
+        url: http://{{ .Release.Name }}-loki:3100
+        access: proxy
+        isDefault: false
+        jsonData:
+          maxLines: 1000
