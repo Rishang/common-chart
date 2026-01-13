@@ -21,3 +21,12 @@
 .idea/
 *.tmproj
 .vscode/
+
+# Chart specific ignores
+docs/
+test/
+tests/
+*.md
+!README.md
+LICENSE
+!LICENSE
