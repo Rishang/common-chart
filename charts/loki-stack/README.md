@@ -1,5 +1,7 @@
 # Loki Stack Helm Chart
 
+![GitHub Repo](https://img.shields.io/github/stars/Rishang/helm-chart)
+
 Observability stack - Loki for logs, Grafana for visualization, Prometheus for metrics, and Grafana Alloy for log collection (alternative to deprecated Promtail).
 
 ## Overview
